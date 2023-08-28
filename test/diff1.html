@@ -8,7 +8,7 @@
     <div id="app"></div>
 </body>
 </html>
-<script  src="../packages/vue/dist/vue.global.js"></script>
+<script  src="./vue.global.js"></script>
 <script>
     const { reactive, effect, watch, createApp } = Vue;
 
@@ -32,7 +32,11 @@
         },
         mounted() {
             setTimeout(() => {
-               this.list[0].name = '张无忌'
+               this.list[2].name = '大刀王五';
+               this.list.push({
+                   id: '004',
+                   name: '赵六'
+               })
             }, 3000)
         }
     });

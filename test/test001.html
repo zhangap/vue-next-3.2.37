@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>测试</title>
+  </head>
+  <body></body>
+</html>
+<script>
+  const person = {
+    firstName: '张',
+    lastName: '三',
+    get fullName() {
+      return (
+        Reflect.get(proxyPerson, 'firstName', person) +
+        Reflect.get(proxyPerson, 'lastName', person)
+      )
+      // return this.firstName + this.lastName
+    }
+  }
+
+  const proxyPerson = new Proxy(person, {
+    get(target, p, receiver) {
+      console.log('getter方法被触发')
+      return target[p]
+    }
+  })
+
+  console.log(proxyPerson.fullName)
+  // console.log(person.fullName)
+</script>

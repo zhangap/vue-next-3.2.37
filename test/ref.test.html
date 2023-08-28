@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>测试RefImpl</title>
+  </head>
+  <body></body>
+</html>
+<script>
+  class RefImpl {
+    value = '初始值'
+    get value() {
+      console.log('get value');
+      return this.value;
+    }
+    set value(newValue) {
+      this.value = newValue
+      console.log('set value');
+    }
+  }
+
+  debugger
+  const ref = new RefImpl()
+  console.log(ref.value)
+  ref.value = '李四'
+  console.log(ref.value)
+</script>

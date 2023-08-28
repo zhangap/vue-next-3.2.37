@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>watch</title>
+    <script  src="../packages/vue/dist/vue.global.js"></script>
+</head>
+<body>
+    <button onclick="onChangeValue()">改变值</button>
+    <button onclick="onChangeTime()">改变时间</button>
+</body>
+</html>
+<script>
+    const {reactive, ref,watch} = Vue;
+
+    const person = reactive({
+        name: '张三',
+        age: 33
+    });
+
+    const currentDate = ref(new Date());
+
+    // 监听reactive的改变
+    debugger;
+    watch(() =>person.age, newValue => {
+        console.log(newValue);
+    })
+
+    // // 监听时间的改变
+    // watch(currentDate, newValue => {
+    //     console.log(newValue.toLocaleTimeString());
+    // })
+
+
+    function onChangeValue() {
+        person.age = Date.now();
+    }
+
+    function onChangeTime() {
+        currentDate.value = new Date();
+    }
+
+
+
+</script>

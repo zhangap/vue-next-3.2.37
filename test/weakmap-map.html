@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+    let obj1 = {
+        name: '张三'
+    };
+    let obj2 = {
+        name: '李四'
+    };
+
+    const map = new Map();
+    map.set(obj1, '这个是map数据');
+
+    obj1 = null;
+
+    console.log(map);
+
+    const weakMap = new WeakMap();
+    weakMap.set(obj2, '这个是weakMap数据');
+    obj2 = null;
+    console.log(weakMap);
+
+</script>

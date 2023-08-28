@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>从头->尾，处理相同的前置元素</title>
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>
+<script  src="../packages/vue/dist/vue.global.js"></script>
+<script>
+    const { reactive, effect, watch, createApp } = Vue;
+
+    const app = createApp({
+        template: `
+          <div>
+          <h1 v-for="item in list" :key="item.id">{{item.name}}</h1>
+          </div>
+        `,
+        data() {
+          return {
+              list: [
+                  {id: '001', name: '张三'},
+                  {id: '002', name: '李四'},
+                  {id: '003', name: '王五'},
+              ]
+          }
+        },
+        created() {
+            console.log('hello')
+        },
+        mounted() {
+            setTimeout(() => {
+               this.list[0].name = '张无忌'
+            }, 3000)
+        }
+    });
+
+    app.mount('#app');
+</script>

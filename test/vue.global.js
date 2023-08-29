@@ -6952,6 +6952,7 @@ var Vue = (function (exports) {
           }
       };
       const mountComponent = (initialVNode, container, anchor, parentComponent, parentSuspense, isSVG, optimized) => {
+          //构建Component实例对象，本质就是构建一个非常多属性的Object
           const instance = (initialVNode.component = createComponentInstance(initialVNode, parentComponent, parentSuspense));
           if (instance.type.__hmrId) {
               registerHMR(instance);
@@ -6969,6 +6970,7 @@ var Vue = (function (exports) {
               {
                   startMeasure(instance, `init`);
               }
+              // 安装组件： 初始化props/slots
               setupComponent(instance);
               {
                   endMeasure(instance, `init`);
@@ -8144,6 +8146,7 @@ var Vue = (function (exports) {
    * It is *internal* but needs to be exposed for test-utils to pick up proper
    * typings
    */
+  /**用于为createVNode注册参数转换的内部API，用于在test-utils中创建存根。这是内部的，但需要暴露给test-utils以获取正确的类型定义。 */
   function transformVNodeArgs(transformer) {
       vnodeArgsTransformer = transformer;
   }
@@ -8161,6 +8164,7 @@ var Vue = (function (exports) {
               : ref
           : null);
   };
+  // 创建虚拟节点
   function createBaseVNode(type, props = null, children = null, patchFlag = 0, dynamicProps = null, shapeFlag = type === Fragment ? 0 : 1 /* ShapeFlags.ELEMENT */, isBlockNode = false, needFullChildrenNormalization = false) {
       const vnode = {
           __v_isVNode: true,
@@ -8253,6 +8257,7 @@ var Vue = (function (exports) {
           return cloned;
       }
       // class component normalization.
+      // 类组件标准化处理
       if (isClassComponent(type)) {
           type = type.__vccOpts;
       }
@@ -9330,6 +9335,7 @@ var Vue = (function (exports) {
   const svgNS = 'http://www.w3.org/2000/svg';
   const doc = (typeof document !== 'undefined' ? document : null);
   const templateContainer = doc && /*#__PURE__*/ doc.createElement('template');
+  //node节点的相关方法
   const nodeOps = {
       insert: (child, parent, anchor) => {
           parent.insertBefore(child, anchor || null);
@@ -10827,6 +10833,7 @@ var Vue = (function (exports) {
   // in case the user only imports reactivity utilities from Vue.
   let renderer;
   let enabledHydration = false;
+  //确保渲染器存在，如果不存在，调用createRenderer方法生成并存储在全局
   function ensureRenderer() {
       return (renderer ||
           (renderer = createRenderer(rendererOptions)));
@@ -10845,6 +10852,7 @@ var Vue = (function (exports) {
   const hydrate = ((...args) => {
       ensureHydrationRenderer().hydrate(...args);
   });
+  // 创建实例的入口
   const createApp = ((...args) => {
       const app = ensureRenderer().createApp(...args);
       {
@@ -10890,6 +10898,7 @@ var Vue = (function (exports) {
       };
       return app;
   });
+    // 在Vue应用程序中注入一个用于验证组件名称的方法
   function injectNativeTagCheck(app) {
       // Inject `isNativeTag`
       // this is used for component name validation (dev only)
@@ -10899,6 +10908,7 @@ var Vue = (function (exports) {
       });
   }
   // dev only
+  //   在vue应用程序韩总注入编译器检查
   function injectCompilerOptionsCheck(app) {
       if (isRuntimeOnly()) {
           const isCustomElement = app.config.isCustomElement;
@@ -10930,6 +10940,7 @@ var Vue = (function (exports) {
           });
       }
   }
+  // 标准化容器
   function normalizeContainer(container) {
       if (isString(container)) {
           const res = document.querySelector(container);
@@ -10938,6 +10949,7 @@ var Vue = (function (exports) {
           }
           return res;
       }
+      // 使用 `{mode: "close"}` 安装在 ShadowRoot 上可能会导致不可预测的错误
       if (window.ShadowRoot &&
           container instanceof window.ShadowRoot &&
           container.mode === 'closed') {
@@ -15825,6 +15837,7 @@ var Vue = (function (exports) {
       render._rc = true;
       return (compileCache[key] = render);
   }
+  // 注册编译函数
   registerRuntimeCompiler(compileToFunction);
 
   exports.BaseTransition = BaseTransition;

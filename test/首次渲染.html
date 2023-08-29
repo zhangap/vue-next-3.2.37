@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>首次渲染</title>
+</head>
+<body>
+<div id="app"></div>
+</body>
+</html>
+<script src="./vue.global.js"></script>
+<script>
+    const { reactive, effect, watch, createApp } = Vue
+
+    debugger;
+    const app = createApp({
+        template: `
+          <ul>
+          <li v-for="item in list" :key="item">{{item}}</li>
+          </ul>
+          <p>{{msg}}</p>
+        `,
+        data() {
+            return {
+                list: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                msg: 'hello world',
+            }
+        },
+        created() {
+            console.log('hello')
+        },
+        mounted() {
+            console.log('')
+            setTimeout(() => {
+                // this.list = ['A', 'E', 'B', 'Y', 'F', 'D', 'G']
+                // this.msg = '你好世界';
+            }, 3000)
+        }
+    })
+
+    app.mount('#app')
+</script>

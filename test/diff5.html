@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>
+      最复杂的情况，处理相同的前置元素+处理相同的后置元素后，剩下的元素有新增、废弃、乱序的情况，需要复杂处理
+    </title>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
+<script src="./vue.global.js"></script>
+<script>
+  const { reactive, effect, watch, createApp } = Vue
+
+  const app = createApp({
+    template: `
+          <div>
+          <h1 v-for="item in list" :key="item">{{item}}</h1>
+          </div>
+        `,
+    data() {
+      return {
+        list: ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+      }
+    },
+    created() {
+      console.log('hello')
+    },
+    mounted() {
+      setTimeout(() => {
+        this.list = ['A', 'E', 'B', 'Y', 'F', 'D', 'G']
+      }, 3000)
+    }
+  })
+
+  app.mount('#app')
+</script>

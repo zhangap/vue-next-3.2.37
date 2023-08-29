@@ -7347,6 +7347,10 @@ var Vue = (function (exports) {
           if (i > e1) {
               if (i <= e2) {
                   const nextPos = e2 + 1;
+                  // 两种情况：
+                  // 一种是新增元素在末尾，那么patch()传入parentAnchor作为参照，将新增元素添加到container子元素的末尾
+                  // 一种是新增元素在头部，那么patch()传入c2[e2+1].el，
+                  // 即面示例元素a所对应的el作为参照，将新增元素添加到元素a的前面
                   const anchor = nextPos < l2 ? c2[nextPos].el : parentAnchor;
                   while (i <= e2) {
                       patch(null, (c2[i] = optimized
@@ -7379,6 +7383,7 @@ var Vue = (function (exports) {
               const s1 = i; // prev starting index
               const s2 = i; // next starting index
               // 5.1 build key:index map for newChildren
+              // 为新的children虚拟节点构建key-map，方便检索
               const keyToNewIndexMap = new Map();
               for (i = s2; i <= e2; i++) {
                   const nextChild = (c2[i] = optimized
@@ -7391,6 +7396,7 @@ var Vue = (function (exports) {
                       keyToNewIndexMap.set(nextChild.key, i);
                   }
               }
+              // 循环遍历需要修补的旧子节点，并尝试进行修补，匹配节点并移除不再存在的节点。
               // 5.2 loop through old children left to be patched and try to patch
               // matching nodes & remove nodes that are no longer present
               let j;
@@ -7409,6 +7415,9 @@ var Vue = (function (exports) {
                   newIndexToOldIndexMap[i] = 0;
               for (i = s1; i <= e1; i++) {
                   const prevChild = c1[i];
+                  // patched >= toBePatched代表新vnode已经循环完成，不需要再找复用的旧vnode，说明剩下还没复用的旧vnode都已经废弃，
+                  // 直接unmount()移除，
+                  // 一般发生在旧vnode末尾存在废弃节点
                   if (patched >= toBePatched) {
                       // all new children have been patched so this can only be a removal
                       unmount(prevChild, parentComponent, parentSuspense, true);
@@ -7419,6 +7428,7 @@ var Vue = (function (exports) {
                       newIndex = keyToNewIndexMap.get(prevChild.key);
                   }
                   else {
+                      // 无密钥节点，尝试定位同类型的无密钥节点
                       // key-less node, try to locate a key-less node of the same type
                       for (j = s2; j <= e2; j++) {
                           if (newIndexToOldIndexMap[j - s2] === 0 &&
@@ -7428,6 +7438,7 @@ var Vue = (function (exports) {
                           }
                       }
                   }
+                  // newIndex === undefined代表新vnode已经找不到目前的旧vnode，说明旧vnode已经废弃，直接unmount()移除
                   if (newIndex === undefined) {
                       unmount(prevChild, parentComponent, parentSuspense, true);
                   }
@@ -7439,17 +7450,20 @@ var Vue = (function (exports) {
                       else {
                           moved = true;
                       }
+                      // 更新能复用的旧vnode
                       patch(prevChild, c2[newIndex], container, null, parentComponent, parentSuspense, isSVG, slotScopeIds, optimized);
                       patched++;
                   }
               }
               // 5.3 move and mount
               // generate longest stable subsequence only when nodes have moved
+              // 仅当节点移动时才生成最长稳定子序列
               const increasingNewIndexSequence = moved
                   ? getSequence(newIndexToOldIndexMap)
                   : EMPTY_ARR;
               j = increasingNewIndexSequence.length - 1;
               // looping backwards so that we can use last patched node as anchor
+              // 从尾->头进行新vnode的遍历
               for (i = toBePatched - 1; i >= 0; i--) {
                   const nextIndex = s2 + i;
                   const nextChild = c2[nextIndex];

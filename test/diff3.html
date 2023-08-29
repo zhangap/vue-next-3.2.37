@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旧children已经处理完毕，但是新children还有元素，处理新增元素，直接进行mount</title>
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>
+<script  src="./vue.global.js"></script>
+<script>
+    // 这种场景包含了diff1.html和diff2.html
+    // (a b)
+    // (a b) c
+    // i = 2, e1 = 1, e2 = 2
+    // (a b)
+    // c (a b)
+    // i = 0, e1 = -1, e2 = 0
+    const { reactive, effect, watch, createApp } = Vue;
+
+    const app = createApp({
+        template: `
+          <div>
+          <h1 v-for="item in list" :key="item.id">{{item.name}}</h1>
+          </div>
+        `,
+        data() {
+          return {
+              list: [
+                  {id: '001', name: '张三'},
+                  {id: '002', name: '李四'},
+                  {id: '003', name: '王五'},
+              ]
+          }
+        },
+        created() {
+            console.log('hello')
+        },
+        mounted() {
+            setTimeout(() => {
+               this.list.unshift({
+                   id: '000',
+                   name: '张无忌'
+               })
+            }, 3000)
+        }
+    });
+
+    app.mount('#app');
+</script>

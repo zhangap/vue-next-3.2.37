@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旧children还有剩余，但是新children已经处理完毕，处理已经废弃元素，直接进行unmount</title>
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>
+<script  src="./vue.global.js"></script>
+<script>
+
+    const { reactive, effect, watch, createApp } = Vue;
+
+    const app = createApp({
+        template: `
+          <div>
+          <h1 v-for="item in list" :key="item.id">{{item.name}}</h1>
+          </div>
+        `,
+        data() {
+          return {
+              list: [
+                  {id: '001', name: '张三'},
+                  {id: '002', name: '李四'},
+                  {id: '003', name: '王五'},
+              ]
+          }
+        },
+        created() {
+            console.log('hello')
+        },
+        mounted() {
+            setTimeout(() => {
+               this.list.shift();
+            }, 3000)
+        }
+    });
+
+    app.mount('#app');
+</script>

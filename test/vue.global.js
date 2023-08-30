@@ -1382,6 +1382,7 @@ var Vue = (function (exports) {
   function isProxy(value) {
       return isReactive(value) || isReadonly(value);
   }
+  //将观察对象转换为原始对象
   function toRaw(observed) {
       const raw = observed && observed["__v_raw" /* ReactiveFlags.RAW */];
       return raw ? toRaw(raw) : observed;

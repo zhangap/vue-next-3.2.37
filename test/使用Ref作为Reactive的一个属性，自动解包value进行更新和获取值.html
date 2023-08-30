@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>使用Ref作为Reactive的一个属性，自动解包value进行更新和获取值</title>
+    <script src="./vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <template id="tpl">
+        <div>{{countRef}}</div>
+    </template>
+  </body>
+</html>
+<script>
+  const { reactive, toRef, createApp, ref } = Vue
+
+  const app = createApp({
+    template: '#tpl',
+    setup(ctx, props) {
+      console.log(ctx, props)
+
+      const countRef = ref(0)
+      const obj = reactive({
+        count: countRef
+      })
+
+        setTimeout(() => {
+            obj.count +=1;
+        },3000)
+
+      return {
+        countRef
+      }
+    }
+  })
+
+  app.mount('#app')
+</script>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>readonly</title>
+    <script src="./vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
+<script>
+
+  const { reactive, toRef, createApp, ref,watchEffect,readonly } = Vue
+  const original = reactive({
+      name: '张翠山',
+      son: {
+          name: '张无忌',
+          level: '1'
+      }
+  });
+  const copy = readonly(original)
+  watchEffect(() => {
+      console.log(copy.name);
+  });
+
+  //会有警告、且不会触发watchEffect
+  // copy.name += '很厉害';
+  // 更改源属性会触发其依赖的侦听器
+  original.name += '很厉害';
+</script>

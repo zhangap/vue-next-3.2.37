@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ref和Reactive的相互转化</title>
+    <script src="./vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <template id="tpl">
+      <p>{{msg}}</p>
+      <p>{{obj.name}}-{{obj.age}}</p>
+      <p>{{ageRef}}</p>
+    </template>
+  </body>
+</html>
+<script>
+  const { reactive, toRef, createApp, ref } = Vue
+
+  const app = createApp({
+    template: '#tpl',
+    setup(props) {
+      const obj = reactive({
+        name: '张三',
+        age: 33
+      })
+
+      const ageRef = toRef(obj, 'age')
+
+      const msg = ref('hello')
+
+      setTimeout(() => {
+        obj.age += 1;
+        ageRef.value += 5;
+      }, 3000)
+
+      return {
+        ageRef,
+        msg,
+        obj
+      }
+    }
+  })
+
+  app.mount('#app')
+</script>

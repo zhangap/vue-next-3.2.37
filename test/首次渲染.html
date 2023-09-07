@@ -10,7 +10,7 @@
 </html>
 <script src="./vue.global.js"></script>
 <script>
-    const { reactive, effect, watch, createApp } = Vue
+    const { reactive, effect, watch, createApp, ref } = Vue
 
     debugger;
     const app = createApp({
@@ -39,4 +39,7 @@
     })
 
     app.mount('#app')
+
+    const count = ref(0);
+    console.log(count);
 </script>

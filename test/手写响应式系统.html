@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>手写响应式系统</title>
+  </head>
+  <body></body>
+</html>
+<script>
+
+  let activeEffect = null
+  const bucket = new WeakMap()
+
+  function effect(fn) {
+      activeEffect = fn;
+      fn();
+  }
+
+  function reactive(data) {
+    const obj = new Proxy(data, {
+      get(target, key) {
+        track(target, key)
+        return target[key]
+      },
+      set(target, key, newVal) {
+        target[key] = newVal
+        trigger(target, key)
+      }
+    })
+    return obj
+  }
+
+  /**
+   * 追踪函数
+   * @param target
+   * @param key
+   */
+  function track(target, key) {
+    if (!activeEffect) return
+
+    let depsMap = bucket.get(target)
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()))
+    }
+    let deps = depsMap.get(key)
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()))
+    }
+    deps.add(activeEffect)
+  }
+
+  /**
+   * 触发
+   * @param target
+   * @param key
+   */
+  function trigger(target, key) {
+    const depsMap = bucket.get(target)
+    if (!depsMap) return
+    const effects = depsMap.get(key)
+    effects && effects.forEach(fn => fn())
+  }
+
+  //第一种测试
+  // const obj = reactive({name: '张三', age: '33'});
+  //
+  // effect(() => {
+  //     document.body.innerText = obj.name + '@' + obj.age;
+  // });
+  //
+  // setTimeout(() => {
+  //     // obj.name = '张爱平';
+  //     obj.address = '湖北秭归';
+  //     debugger;
+  // },3000)
+
+
+</script>

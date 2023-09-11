@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>鼠标滚动事件</title>
+    <style>
+        body {
+            height: 5000px;
+        }
+    </style>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+
+    const jobQueue = new Set();
+
+    const p = Promise.resolve();
+
+    let isFlushing = false;
+
+    function flushObj() {
+        if(isFlushing) return;
+        isFlushing = true;
+        p.then(() => {
+            jobQueue.forEach(job => job());
+        }).finally(() => {
+            isFlushing = false;
+        })
+    }
+
+    // let pos =null;
+    // document.body.addEventListener('wheel', ev => {
+    //     pos = ev;
+    //     // jobQueue.add(wheelFn);
+    //     // flushObj();
+    //     wheelFn();
+    // })
+    let i =0;
+    for (i = 0; i < 100; i++) {
+        //只执行一次
+        jobQueue.add(fn);
+        flushObj();
+        // 执行100次
+        // fn();
+    }
+
+
+    function fn(){
+        console.log('函数执行', i);
+    }
+</script>

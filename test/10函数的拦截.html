@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>10函数的拦截</title>
+  </head>
+  <body></body>
+</html>
+<script>
+  function fn(name) {
+    console.log('hello:' + name)
+  }
+
+  const proxy = new Proxy(fn, {
+    // 拦截函数
+    apply(target, thisArg, argArray) {
+      // return target(...argArray)
+      target.call(thisArg, ...argArray)
+    }
+  })
+
+  proxy('张三')
+
+  const obj = {foo: 1}
+  // console.log(Reflect.get(obj, 'foo', { foo:2}))
+  console.log(Reflect.get(obj, 'foo', { foo: 2 }))
+
+
+
+  const obj2 = {foo:1};
+  const p = new Proxy(obj2, {
+      deleteProperty(target, p) {
+          console.log('不能删除');
+          return Reflect.deleteProperty(target,p);
+          // return null;
+      }
+  })
+  console.log(p.foo);
+  delete  p.foo;
+  console.log(p.foo)
+</script>

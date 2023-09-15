@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数组迭代</title>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+    const arr = [1,2,3,4,5,6,7];
+    const itr = arr[Symbol.iterator]();
+    console.log(itr.next().value)
+    console.log(itr.next().value)
+
+    for (const val of arr) {
+        console.log(val);
+    }
+</script>

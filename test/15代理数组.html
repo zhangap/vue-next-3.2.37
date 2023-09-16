@@ -20,6 +20,33 @@
     ADD: 'ADD',
     DELETE: 'DELETE'
   }
+  // 定义一个 Map 实例，存储原始对象到代理对象的映射
+  const reactiveMap = new Map()
+  // 标记是否需要追踪
+  let shouldTrack = true
+
+  //重写数组的部分方法
+  const arrayInstrumentations = {}
+  ;['includes', 'indexOf', 'lastIndexOf'].forEach(method => {
+    const originalMethod = Array.prototype[method]
+    arrayInstrumentations[method] = function (...args) {
+      let res = originalMethod.apply(this, args)
+      if (res === false || -1 === res) {
+        res = originalMethod.apply(this.raw, args)
+      }
+      return res
+    }
+  })
+  // 重写数组的 push、pop、shift、unshift 以及 splice 方法
+  ;['push', 'pop', 'shift', 'unshift', 'splice'].forEach(method => {
+    const originalMethod = Array.prototype[method]
+    arrayInstrumentations[method] = function (...args) {
+      shouldTrack = false
+      let res = originalMethod.apply(this, args)
+      shouldTrack = true
+      return res
+    }
+  })
 
   /**
    * 副作用函数
@@ -82,12 +109,26 @@
    */
   function createReactive(data, isShallow = false, isReadonly = false) {
     data.raw = data
-    const obj = new Proxy(data, {
+    const existProxy = reactiveMap.get(data)
+    if (existProxy) return existProxy
+    const proxy = new Proxy(data, {
       get(target, key, receiver) {
+        // 当禁止追踪时，直接返回
+        if (!activeEffect || !shouldTrack) return
+
         // 代理对象可以通过 raw 属性访问原始数据
         if (key === 'raw') {
           return target
         }
+
+        // 如果操作的目标对象是数组，并且 key 存在于arrayInstrumentations 上，那么返回定义在 arrayInstrumentations 上的值
+        if (
+          Array.isArray(target) &&
+          arrayInstrumentations.hasOwnProperty(key)
+        ) {
+          return Reflect.get(arrayInstrumentations, key, receiver)
+        }
+
         // 非只读属性才需要建立响应关系
         //   key的类型是symbol,则不进行追踪
         if (!isReadonly && typeof key !== 'symbol') {
@@ -158,7 +199,8 @@
         return Reflect.ownKeys(target)
       }
     })
-    return obj
+    reactiveMap.set(data, proxy)
+    return proxy
   }
 
   /**
@@ -356,9 +398,28 @@
   // arr[1] = 100
   // arr.length = 0
 
-  const arr = reactive([1,2]);
+  // const arr = reactive([1, 2])
+  // effect(() => {
+  //   console.log(arr.includes(1))
+  // })
+  // arr[0] = 3
+
+  // 测试用例
+  // const obj = { name: '张三' }
+  // const arr = reactive([obj])
+  // effect(() => {
+  //   console.log(arr.includes(arr[0]))
+  // })
+  //
+  // console.log(arr.includes(obj))
+
+  // Maximum call stack size exceeded
+  // 如果不对数组的push方法做处理，就会出现思绪换 Maximum call stack size exceeded
+  const arr = reactive([])
   effect(() => {
-      console.log(arr.includes(1))
+    arr.push(1)
   })
-  arr[0] = 3
+  effect(() => {
+    arr.push(2)
+  })
 </script>

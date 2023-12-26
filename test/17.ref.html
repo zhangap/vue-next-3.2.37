@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ref</title>
+    <script  src="../packages/vue/dist/vue.global.js"></script>
+</head>
+<body>
+<div id="app">
+</div>
+<template id="tpl">
+    <button @click="onChangeValue">改变值</button>
+    <div>{{obj.name}}</div>
+</template>
+</body>
+</html>
+<script>
+    const {reactive, effect, createApp} = Vue;
+
+    const app = createApp({
+        template: '#tpl',
+        setup() {
+            const obj = reactive({
+                name: '张爱平',
+                age: 33
+            })
+
+            const newObj = {
+               name: {
+                   get value() {
+                       return obj.name
+                   }
+               },
+                age: {
+                   get value() {
+                       return obj.age
+                   }
+                }
+            }
+
+            effect(() => {
+                console.log(newObj.name.value,newObj.age.value);
+            })
+
+            function onChangeValue() {
+                obj.name = '张三丰'
+            }
+            return {
+                obj,
+                onChangeValue,
+            }
+        }
+    })
+    app.mount('#app');
+
+</script>

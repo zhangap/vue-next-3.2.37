@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>编译器</title>
+    <script src="../vue.global.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+
+    <button type="button" id="submitBtn">提交按钮</button>
+    <hr/>
+    <form action="" id="myForm"></form>
+
+    用户名：<input type="text" id="userName" name="userName" form="myForm">
+    密码：<input type="password" id="password" name="password" form="myForm">
+    <button onclick="onSubmit()">提交</button>
+
+</body>
+</html>
+<script>
+    const {ref, effect} = Vue;
+
+    function renderer(domString, container) {
+        container.innerHTML = domString;
+    }
+    const count = ref(1);
+    effect(() => {
+        renderer(`<h1>${count.value}</h1>`, document.querySelector('#app'))
+    });
+
+    setTimeout(() => {
+        count.value = 2;
+    },3000);
+
+    const oBtn = document.querySelector('#submitBtn');
+    oBtn.disabled = true;
+    // oBtn.setAttribute('disabled', true);
+    setTimeout(() => {
+        // oBtn.removeAttribute('disabled');
+        oBtn.disabled = false;
+    },4000);
+
+    function onSubmit() {
+        const oForm = document.querySelector('#myForm');
+        console.log(oForm);
+    }
+
+
+    // patch props
+    function patchProps(el,key,prevValue,nextValue) {
+        if(/^on/.test(key)) {
+            const invokers = el._vei || (el._vei = {});
+            const name = key.slice(2).toLowerCase();
+            let invoker = invokers[key];
+            if(nextValue) {
+                if(!invoker) {
+                    invoker = el._vei[key] = (e) => {
+                        invoker.value(e);
+                    }
+                    invoker.value = nextValue;
+                    el.addEventListener(name, invoker);
+                } else {
+                    // 如果invoker存在，意味着更新、并且只需要更新invoker.value的值即可
+                    invoker.value = nextValue;
+                }
+            } else if(invoker) {
+                el.removeEventListener(name,invoker);
+            }
+        } else if(key === 'class') {
+            //TODO:处理样式
+        }
+    }
+</script>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>时间冒泡与更新时机问题</title>
+    <script src="../vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+    </div>
+</body>
+</html>
+<script>
+    const {effect, ref, render, ShapeFlags, createApp,h, Text} = Vue;
+
+    const bol = ref(false);
+
+
+    effect(() => {
+        // const vNode = {
+        //     type: 'div',
+        //     props: bol.value ? {
+        //         onClick() {
+        //             alert('父元素clicked');
+        //         }
+        //     } : {},
+        //     shapeFlag: 17,
+        //     children: [
+        //         {
+        //             type: 'p',
+        //             props: {
+        //                 onClick:() => {
+        //                     bol.value = true
+        //                 }
+        //             },
+        //             children: {
+        //                 type: Text,
+        //                 children: 'hello'
+        //             },
+        //             shapeFlag: 3,
+        //         }
+        //     ]
+        // }
+        const vNode = h('div',
+            bol.value ?  {
+            onClick() {
+                alert(111)}
+        }: {},
+            [h('p', {
+                onClick() {
+                    alert('p');
+                    bol.value = true
+                }
+                },['hello'])])
+        render(vNode, document.querySelector('#app'));
+    })
+
+
+    // setTimeout(() => {
+    //     // document.querySelector('#app').firstChild.nodeValue = 'hello world!';
+    // }, 5000)
+
+</script>

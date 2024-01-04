@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>快速diff算法</title>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+    /**
+     *
+     * @param n1  旧的节点
+     * @param n2 新的节点
+     * @param container 容器
+     */
+    function patchKeyedChildren(n1,n2,container) {
+        const newChildren = n2.children;
+        const oldChildren = n1.children;
+        //更新相同的前置节点
+        let j = 0;
+        let oldVNode = oldChildren[j];
+        let newVNode = newChildren[j];
+        while (oldVNode.key === newVNode.key) {
+            patch(oldVNode,newVNode,container);
+            j++;
+            oldVNode = oldChildren[j];
+            newVNode = newChildren[j];
+        }
+
+        // 更新相同的后置节点
+        // 索引oldEnd索引指向旧的一组节点的最后一个节点
+        let oldEnd = oldChildren.length - 1;
+        // 索引newEnd指向新的一组节点的最后一个节点
+        let newEnd = newChildren.length - 1;
+
+        oldVNode = oldChildren[oldEnd];
+        newVNode = newChildren[newEnd];
+
+        //while循环从后往前遍历，直到遇到key不同的节点为止
+        while(oldVNode.key === newVNode.key) {
+            patch(oldVNode,newVNode,container);
+            //递减索引
+            oldEnd--;
+            newEnd--;
+            oldVNode = oldChildren[oldEnd];
+            newVNode = newChildren[newEnd];
+        }
+
+        //条件1：oldEnd<j成立：说明在预处理过程中，所有的旧子节点都处理完毕
+        // 条件2:newEnd>=j成立：说明在预处理后，在新的一组子节点中，仍然有未被处理的节点，而这些遗留的节点将被视作新增节点
+
+        // 预处理完毕后，如果满足以下条件，则说明从j --> newEnd之间的节点应作为新节点插入
+        if(j > oldEnd && j <=newEnd) {
+            // 锚点的索引
+            const anchorIndex = newEnd +1;
+            //锚点元素
+            const anchor = anchorIndex < newChildren.length ? newChildren[anchorIndex].el : null;
+            while (j <=newEnd) {
+                patch(null, newChildren[j++], container, anchor);
+            }
+        } else if(j > newEnd && j<=oldEnd) {
+            //卸载j-->oldEnd之间的节点
+            while ( j <= oldEnd) {
+                unMount(oldChildren[j++]);
+            }
+        } else {
+            // 找到新节点在旧节点中所处的位置，记录下位置索引。然后使用它计算出一个最长递增子序列，并用于辅助完成DOM的移动操作。
+            const count = newEnd - j + 1;
+            const source = new Array(count);
+            source.fill(-1);
+
+            //oldStart和newStart分别为起始索引，即j
+            const oldStart = j;
+            const newStart = j;
+
+            // 构建索引表
+            const keyIndex = {};
+            for(let i = newStart; i<=newEnd; i++) {
+                keyIndex[newChildren[i].key] = i;
+            }
+
+            //遍历旧的一组子节点
+            for(let i = oldStart; i <=oldEnd; i ++) {
+                const oldVNode = oldChildren[i];
+                // 通过索引表快速找到新的一组子节点中具有相同 key 值的节点位置
+                const key = keyIndex[oldVNode.key];
+                if(typeof key !== "undefined") {
+                    const newVNode = newChildren[k];
+                    //找到拥有相同key值的可复用节点
+                    if(oldVNode.key === newVNode.key) {
+                        // 调用patch进行更新
+                        patch(oldVNode,newVNode, container);
+                        source[key-newStart] = i ;
+                    } else {
+                        //没找到
+                        unMount(oldVNode);
+                    }
+                }
+            }
+        }
+        //判断是否需要进行dom移动操作
+    }
+
+    function patch(oldVNode, newVNode,container) {
+
+    }
+
+    //卸载节点
+    function unMount(vNode) {
+
+    }
+</script>

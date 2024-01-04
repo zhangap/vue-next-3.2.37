@@ -74,35 +74,87 @@
             //oldStart和newStart分别为起始索引，即j
             const oldStart = j;
             const newStart = j;
+            // 新增两个变量、moved和pos
+            let moved = false;
+            let pos = 0;
 
-            // 构建索引表
+            // 构建索引表，以键值对的形式存储，避免双重循环。
             const keyIndex = {};
             for(let i = newStart; i<=newEnd; i++) {
                 keyIndex[newChildren[i].key] = i;
             }
+            // 新增patched变量，记录更新过的节点数量
+            let patched = 0;
 
             //遍历旧的一组子节点
             for(let i = oldStart; i <=oldEnd; i ++) {
                 const oldVNode = oldChildren[i];
-                // 通过索引表快速找到新的一组子节点中具有相同 key 值的节点位置
-                const key = keyIndex[oldVNode.key];
-                if(typeof key !== "undefined") {
-                    const newVNode = newChildren[k];
-                    //找到拥有相同key值的可复用节点
-                    if(oldVNode.key === newVNode.key) {
-                        // 调用patch进行更新
-                        patch(oldVNode,newVNode, container);
-                        source[key-newStart] = i ;
-                    } else {
+
+                if(patched <= count) {
+                    // 通过索引表快速找到新的一组子节点中具有相同 key 值的节点位置
+                    const key = keyIndex[oldVNode.key];
+                    if(typeof key !== "undefined") {
+                        const newVNode = newChildren[k];
+                        //找到拥有相同key值的可复用节点
+                        if(oldVNode.key === newVNode.key) {
+                            // 调用patch进行更新
+                            patch(oldVNode,newVNode, container);
+                            // 每更新一个节点，都将patched变量+1；
+                            patched++;
+                            source[key-newStart] = i ;
+                            // 判断节点是否需要移动
+                            if(key < pos) {
+                                moved = true;
+                            } else {
+                                pos = key;
+                            }
+                        }
+                    }else {
                         //没找到
                         unMount(oldVNode);
                     }
+                } else {
+                    unMount(oldVNode);
                 }
+            }
+            if(moved) {
+            //     计算最长递增子序列
+                const seq = list(source);
+                // s指向最长递增子序列的最后一个元素
+                let s = seq.length -1;
+            //     i指向新的一组子节点的最后一个元素
+                let i = count -1;
+                for(i; i>=0; i--) {
+                    if(i !==seq[s]) {
+                        //如果节点的索引i不等于seq[s]的值，说明该节点需要移动
+                        const pos =  i + newStart;
+                        const newVNode = newChildren[pos];
+                        const nextPos = pos +1;
+                        //锚点
+                        const anchor = nextPos < newChildren.length ? newChildren[nextPos].el : null;
+                        insert(newVNode.el, container, anchor);
+                    } else {
+                    //     当i===seq[s]时，说明该节点不需要移动
+                        s--;
+                    }
+                }
+
             }
         }
         //判断是否需要进行dom移动操作
     }
 
+    //插入元素
+    function insert(dom, container, anchor) {
+
+    }
+
+    // 计算最长递增子序列的方法
+    function list() {
+
+    }
+
+    // 打补丁
     function patch(oldVNode, newVNode,container) {
 
     }

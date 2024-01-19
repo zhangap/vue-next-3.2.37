@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>函数式组件</title>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+    //函数式组件最基本的要求就是返回一个虚拟dom
+    function MyFunctionComp(props) {
+        return {type: 'h1', children: props.title};
+    }
+    MyFunctionComp.props = {
+        title: String,
+    }
+</script>

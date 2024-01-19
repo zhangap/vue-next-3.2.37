@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transition</title>
+    <style>
+        .box {
+            width: 100px;
+            height: 100px;
+            background: red;
+        }
+        .enter-from {
+            transform: translateX(200px);
+        }
+        .enter-to {
+            transform: translateX(0);
+        }
+        .enter-active {
+            transition: transform 1s ease-in-out;
+        }
+        /*初始状态*/
+        .leave-from {
+            transform: translateX(0);
+        }
+        /*结束状态*/
+        .leave-to {
+            transform: translateX(200px);
+        }
+        /*过渡过程*/
+        .leave-active {
+            transition: transform 2s ease-out;
+        }
+    </style>
+</head>
+<body>
+</body>
+</html>
+<script>
+
+    // 包装函数requestAnimationFrame
+    const nextFrame = (callback) => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(callback);
+        })
+    }
+    // 实现原理
+    const oBox = document.createElement('div');
+    oBox.classList.add('box');
+    oBox.classList.add('enter-from');
+    oBox.classList.add('enter-active');
+
+    document.body.appendChild(oBox);
+
+    nextFrame(() => {
+        oBox.classList.remove('enter-from');
+        oBox.classList.add('enter-to');
+
+        oBox.addEventListener('transitionend',() => {
+            oBox.classList.remove('enter-to');
+            oBox.classList.remove('enter-active');
+        })
+    });
+
+
+    oBox.addEventListener('click', () => {
+        // 把卸载的动作封装到performRemove函数中
+        const performRemove = () => oBox.parentNode.removeChild(oBox);
+
+        // 设置初始状态：添加 leave-from 和 leave-active 类
+        oBox.classList.add('leave-from');
+        oBox.classList.add('leave-active');
+        // 强制 reflow：使初始状态生效
+        document.body.offsetHeight;
+        nextFrame(() => {
+            // 切换到结束状态
+            oBox.classList.remove('leave-from');
+            oBox.classList.add('leave-to');
+
+            oBox.addEventListener('transitionend', () => {
+                oBox.classList.remove('leave-to');
+                oBox.classList.remove('leave-active');
+                // 过渡完以后，记得调用performRemove函数将DOm元素移除
+                performRemove();
+            })
+        })
+    });
+
+
+
+
+    const Transition = {
+        name: 'Transition',
+        setup(props, {slots}) {
+            const innerVNode = slots.default();
+            innerVNode.transition = {
+                beforeEnter(el) {
+                    // 设置初始状态
+                    el.classList.add('enter-from');
+                    el.classList.add('enter-active');
+                },
+                enter(el) {
+                    //在下一帧切换到结束状态
+                    nextFrame(() => {
+                        el.classList.remove('enter-from');
+                        el.classList.add('enter-to');
+                        // 监听transitionend事件完成收尾工作
+                        el.addEventListener('transitionend', () => {
+                            el.classList.remove('enter-to');
+                            el.classList.remove('enter-active');
+                        })
+                    })
+
+                },
+                leave(el,performRemove) {
+                    // 设置离场过渡的初始状态：添加 leave-from 和 leave-active类
+                    el.classList.add('leave-from');
+                    el.classList.add('leave-active');
+                    // 强制 reflow（重排），使得初始状态生效
+                    document.body.offsetHeight;
+                    nextFrame(() => {
+                        // 移除 leave-from 类，添加 leave-to 类
+                        el.classList.remove('leave-from');
+                        el.classList.add('leave-to');
+
+                        // 监听transitionend事件完成收尾工作
+                        el.addEventListener('transitionend', () => {
+                            el.classList.remove('leave-to');
+                            el.classList.remove('leave-active');
+                            // 调用 transition.leave 钩子函数的第二个参数，完成 DOM元素的卸载
+                            performRemove();
+                        })
+                    })
+                }
+            }
+            return innerVNode;
+        }
+    }
+
+</script>

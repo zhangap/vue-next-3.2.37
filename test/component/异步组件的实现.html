@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>异步组件的实现</title>
+</head>
+<body>
+
+</body>
+</html>
+<script>
+    import {onUnmounted, ref, shallowRef} from "../vue.global";
+
+    /**版本1
+     * 定义异步组件
+     * @param loader  异步组件加载器
+     */
+    function defineAsyncComponent(loader) {
+        // 一个变量，用来存储异步加载的组件
+        let InnerComp = null;
+        // 返回一个包装组件
+        return {
+            name: 'AsyncComponentWrapper',
+            setup() {
+                // 异步组件是否加载成功
+                const loaded = ref(false);
+                // 执行加载器函数，返回一个promise实例
+                // 加载成功后，将加载成功的组件赋值给InnerComp, 并将loaded标记为true，代表加载成功
+                loader().then( c => {
+                    InnerComp = c ;
+                    loaded.value = true;
+                })
+                return () => {
+                    // 如果异步组件加载成功，则渲染该组件，否则渲染一个占位内容
+                    return loaded.value ? {type: InnerComp} : {type:Text, children: ''}
+                }
+            }
+        }
+    }
+
+    /**
+     * 版本2
+     * @param options
+     */
+    function defineAsyncComponent(options) {
+        // options既可以是配置项，也可以是加载器
+        if(typeof options === 'function') {
+            options = {
+                loader: options
+            }
+        }
+        const {loader} = options;
+        let InnerComp = null;
+        // 记录重试次数
+        let retries = 0;
+
+        //封装load函数用来加载异步组件
+        function load() {
+            return loader().catch(err => {
+                // 如果用户指定了onError回调，则将控制权交给用户
+                if(options.onError) {
+                    return new Promise((resolve, reject) => {
+                        const retry = () => {
+                            resolve(load());
+                            retries++;
+                        };
+                        const fail = () => reject(err)
+                        options.onError(retry, fail, retries);
+                    })
+                } else {
+                    throw  new Error('');
+                }
+            })
+
+        }
+
+        return {
+            name: 'AsyncComponentWrapper',
+            setup() {
+                const loaded = ref(false);
+                // 定义error,当错误发生时，用来存储错误对象
+                const error = shallowRef(null);
+                // 一个标志，代表是否正在加载，默认为false
+                const loading = ref(false);
+                let loadingTimer = null;
+
+                if(options.delay) {
+                    // 如果开启了超时时长，则打开一个定时器
+                    loadingTimer = setTimeout(() => {
+                        loading.value = true;
+                    }, options.delay);
+                } else {
+                    // 如果没有配置项中没有delay，则直接标记为加载中
+                    loading.value = true;
+                }
+
+                load().then(c => {
+                    InnerComp = c;
+                    loaded.value = true;
+                }).catch(err => {
+                    error.value = err;
+                }).finally(() => {
+                    loading.value = false;
+                    // 加载完毕后，无论成功与否都要清除定时器
+                    clearTimeout(loadingTimer);
+                })
+
+                let timer = null;
+                if(options.timeout) {
+                    timer = setTimeout(() => {
+                        error.value = new Error(`Async component timed out after ${options.timeout}`);
+                    })
+                }
+                // 包装组件被卸载时清除定时器
+                onUnmounted(() => {
+                    clearTimeout(timer);
+                })
+                // 占位内容
+                const placeholder = {type: Text, children: ''};
+
+                return () => {
+                    if(loaded.value) {
+                        return {
+                            type: InnerComp
+                        }
+                    }else if(error.value && options.errorComponent) {
+                        // 只有当错误存在且用户配置了 errorComponent 时才展示 Error
+                        // 组件，同时将 error 作为 props 传递
+                        return {
+                            type: options.errorComponent,
+                            props: {error: error.value}
+                        }
+                    }else if(loading.value && options.loadingComponent) {
+                        // 如果异步组件正在加载，并且用户指定了Loading组件，则渲染Loading组件
+                        return {
+                            type: options.loadingComponent
+                        }
+                    }
+                    return placeholder;
+                }
+            }
+        }
+
+    }
+</script>

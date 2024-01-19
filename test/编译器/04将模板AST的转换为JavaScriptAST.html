@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>04将模板AST的转换为JavaScriptAST.html</title>
+</head>
+<body>
+    <pre id="code"></pre>
+</body>
+</html>
+<script type="module">
+import {transform} from "./transform2.js";
+import {parse} from './parse.js';
+import {generate} from "./generate.js";
+
+function compile(template) {
+    // 把模板转换为ast
+    const ast = parse(template);
+    // 把模板ast转换为javascript ast
+    transform(ast);
+    // 代码生成
+    const code =  generate(ast.jsNode);
+    return code;
+}
+debugger;
+const testStr = `<div><p>Vue</p><p>Template</p></div>`;
+const codeStr = compile(testStr);
+document.querySelector('#code').innerHTML = codeStr;
+</script>

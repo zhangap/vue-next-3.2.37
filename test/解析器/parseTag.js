@@ -32,6 +32,7 @@ export  function parseTag(context, type='start') {
     // 在消费匹配的内容后，如果字符串以 '/>' 开头，则说明这是一个自闭合标签
     const isSelfClosing = context.source.startsWith('/>');
     advanceBy(isSelfClosing ? 2:1);
+    advanceSpaces();
 
     // 返回标签节点
 

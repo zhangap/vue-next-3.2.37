@@ -8,7 +8,7 @@ export function parseAttributes(context) {
     const props = [];
 
     // 开启 while 循环，不断地消费模板内容，直至遇到标签的“结束部分”为止
-    while (!context.source.startWith('>') && !context.source.startWith('/>')) {
+    while (!context.source.startsWith('>') && !context.source.startsWith('/>')) {
         // 解析属性或指令（用来匹配属性名）
         const match = /^[^\t\r\n\f />][^\t\r\n\f />=]*/.exec(context.source);
         // 得到属性名
@@ -63,5 +63,5 @@ export function parseAttributes(context) {
         })
     }
     // 返回props
-    return prophos;
+    return props;
 }

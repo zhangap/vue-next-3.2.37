@@ -1,4 +1,6 @@
 import {TextModes} from "./Constant.js";
+import {parseChildren} from "./parseChildren.js";
+
 export function parse(str) {
     // 上下文对象
     const context = {
@@ -18,7 +20,6 @@ export function parse(str) {
             }
         }
     }
-
     const nodes = parseChildren(context, []);
 
     return {

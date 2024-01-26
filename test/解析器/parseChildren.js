@@ -1,9 +1,9 @@
 import {TextModes} from "./Constant.js";
 import {parseComment} from "./parseComment.js";
-import {parseCDATA} from "./parseCDATA";
-import {parseElement} from "./parseElement";
-import {parseInterpolation} from "./parseInterpolation";
-import {parseText} from "./parseText";
+import {parseCDATA} from "./parseCDATA.js";
+import {parseElement} from "./parseElement.js";
+import {parseInterpolation} from "./parseInterpolation.js";
+import {parseText} from "./parseText.js";
 
 /**
  * 解析

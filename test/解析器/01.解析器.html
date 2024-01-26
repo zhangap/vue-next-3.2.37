@@ -16,3 +16,14 @@
 
 </body>
 </html>
+<script type="module">
+    import {parse} from './parse.js';
+    const template = `<div>
+    <p>Text1</p>
+    <p>Text2</p>
+</div>`;
+
+    const res = parse(template);
+    console.log(res);
+    debugger;
+</script>

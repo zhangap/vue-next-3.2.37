@@ -14,30 +14,30 @@ export function parseChildren(context,ancestors) {
     // 定义 nodes 数组存储子节点，它将作为最终的返回值
     const nodes = [];
     // 从上下文对象中取得当前状态，包括模式 mode 和模板内容 source
-    const {mode, source} = context;
+    const {mode} = context;
     // 开启 while 循环，只要满足条件就会一直对字符串进行解析
     while (!isEnd(context,ancestors)) {
         let node;
         // 只有 DATA 模式和 RCDATA 模式才支持插值节点的解析
         if(mode === TextModes.DATA || mode === TextModes.RCDATA) {
             // 只有 DATA 模式才支持标签节点的解析
-            if(mode === TextModes.DATA && source[0] === '<') {
-                if(source[1] === '!') {
-                    if(source.startsWith('<!--')) {
+            if(mode === TextModes.DATA && context.source[0] === '<') {
+                if(context.source[1] === '!') {
+                    if(context.source.startsWith('<!--')) {
                         //注释节点
                         node = parseComment(context);
-                    } else if(source.startsWith('<![CDATA]')) {
+                    } else if(context.source.startsWith('<![CDATA]')) {
                         // CDATA
                         node = parseCDATA(context, ancestors);
                     }
-                } else if(source[1] === '/') {
+                } else if(context.source[1] === '/') {
                     // 结束标签，这里需要抛出错误，后文会详细解释原因
                     console.error('结束标签，这里错误');
-                } else if(/[a-z]/i.test(source[1])) {
+                } else if(/[a-z]/i.test(context.source[1])) {
                     // 标签
                     node = parseElement(context, ancestors);
                 }
-            } else if(source.startsWith('{{')) {
+            } else if(context.source.startsWith('{{')) {
                 // 解析插值
                 node = parseInterpolation(context);
             }

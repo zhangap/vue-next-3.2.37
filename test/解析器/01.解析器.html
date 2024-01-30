@@ -38,7 +38,17 @@
 //     console.log(parse(template));、
 
     //解析属性
+    // debugger;
+    // const template = `<div id="foo" v-show="display">hello world</div>`;
+    // console.log(parse(template));
+
+    // 解析插值和注释
     debugger;
-    const template = `<div id="foo" v-show="display">hello world</div>`;
-    console.log(parse(template));
+    const template2 = `
+        <div id="foo2" v-if="show">
+                <span>{{showTxt}}</span>
+<!--                这个是注释节点-->
+        </div>`;
+    console.log(parse(template2));
+
 </script>

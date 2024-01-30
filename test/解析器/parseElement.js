@@ -9,7 +9,7 @@ import {parseChildren} from "./parseChildren.js";
  */
 export function parseElement(context,ancestors) {
     const element = parseTag(context);
-    if(element.isSelfClosing) return;
+    if(element.isSelfClosing) return element;
     // 切换到正确的文本模式
     if(element.tag === 'textarea' || element.tag === 'title') {
         // 如果由 parseTag 解析得到的标签是 <textarea> 或 <title>，则切换到 RCDATA 模式

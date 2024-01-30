@@ -25,7 +25,7 @@ export function parseAttributes(context) {
         //属性值
         let value = '';
         // 获取当前模板内容的第一个字符
-        const quote = context.source(0);
+        const quote = context.source[0];
         // 判断属性值是否被引号引用
         const isQuoted = quote === '"' || quote === "'";
 

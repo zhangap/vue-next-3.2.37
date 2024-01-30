@@ -18,12 +18,27 @@
 </html>
 <script type="module">
     import {parse} from './parse.js';
-    const template = `<div>
-    <p>Text1</p>
-    <p>Text2</p>
-</div>`;
+    // test1
+//     const template = `<div>
+//     <p>Text1</p>
+//     <p>Text2</p>
+// </div>`;
+//     debugger;
+//     const res = parse(template);
+//     console.log(res);
+//     debugger;
+
+
+//     // test2
+//     debugger;
+//     const template = `<div>
+//     <span>hello</span>
+//     <hr/>
+// </div>`;
+//     console.log(parse(template));、
+
+    //解析属性
     debugger;
-    const res = parse(template);
-    console.log(res);
-    debugger;
+    const template = `<div id="foo" v-show="display">hello world</div>`;
+    console.log(parse(template));
 </script>
